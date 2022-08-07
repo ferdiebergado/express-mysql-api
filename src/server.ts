@@ -1,6 +1,7 @@
+import http from 'http'
 import app from './app'
 
 const PORT = app.get('port')
-const server = app.listen(PORT)
+const server = http.createServer(app)
 
-server.on('listening', () => console.log('Server listening on port %s...', PORT))
+server.listen(PORT, () => console.log('Server listening on port %d...', PORT))

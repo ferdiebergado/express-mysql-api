@@ -7,15 +7,17 @@
     "dev": "nodemon src/server.ts",
     "test": "jest",
     "docker:dev": "docker compose up",
-    "docker:test": "docker exec -t express_api npm test"
+    "docker:test": "docker compose exec -it app npm test"
   },
   "keywords": [],
   "author": "",
   "license": "MIT",
   "devDependencies": {
     "@faker-js/faker": "7.3.0",
+    "@types/argon2": "0.15.0",
     "@types/express": "4.17.13",
     "@types/jest": "28.1.6",
+    "@types/jsonwebtoken": "8.5.8",
     "@types/node": "18.6.4",
     "@types/supertest": "2.0.12",
     "@typescript-eslint/eslint-plugin": "5.32.0",
@@ -33,7 +35,11 @@
     "typescript": "4.7.4"
   },
   "dependencies": {
+    "argon2": "0.28.7",
     "dotenv": "16.0.1",
-    "express": "4.18.1"
+    "express": "4.18.1",
+    "express-validator": "6.14.2",
+    "jsonwebtoken": "8.5.1",
+    "mysql2": "2.3.3"
   }
 }

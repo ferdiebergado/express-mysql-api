@@ -1,0 +1,20 @@
+@host = {{$dotenv HOST}}:{{$dotenv PORT}}
+@json = application/json
+
+# @name root
+GET / 
+Host: {{host}}
+Accept: {{json}}
+
+###
+
+# @name register
+POST /auth/register
+Host: {{host}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+    "email": "wit@herobcod.nc",
+    "password": "FlZYPTRBig"
+}

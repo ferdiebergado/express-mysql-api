@@ -1,0 +1,48 @@
+services:
+  app:
+    container_name: express_api3
+    build:
+      dockerfile: Dockerfile
+      context: .
+      # target: development
+    ports:
+      - ${PORT}:${PORT}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - express-api3-net
+    depends_on:
+      - db
+    restart: unless-stopped
+    command: npm run dev
+
+  db:
+    container_name: express_api3_mysql
+    image: mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASS}
+    ports:
+      - ${DB_PORT}:3306
+    networks:
+      - express-api3-net      
+    volumes:
+      - express-api3-mysql-data:/var/lib/mysql
+    restart: unless-stopped
+
+  adminer:
+    container_name: adminer
+    image: adminer
+    ports:
+      - 8080:8080
+    networks:
+      - express-api3-net   
+    restart: unless-stopped
+
+volumes:
+  express-api3-mysql-data:
+networks:
+  express-api3-net:
