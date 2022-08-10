@@ -17,8 +17,13 @@ const userData = {
 }
 
 // helper functions
-const postData = (url: string, data: Record<string, any>) => {
-  return api.post(url).set('content-type', 'application/json').send(data)
+const postData = async (url: string, data: Record<string, any>) => {
+  const response = await api
+    .post(url)
+    .set('content-type', 'application/json')
+    .send(data)
+
+  return response
 }
 
 // test proper
@@ -29,34 +34,38 @@ describe('Authentication Test Suite', () => {
     const res = await postData(registerUrl, userData)
 
     expect(res.status).toEqual(HTTP_STATUS.CREATED)
-    // expect(res.body.id).toBeDefined()
+    expect(res.body.status).toEqual('ok')
+    expect(res.body.message).toBeDefined()
+    expect(res.body.data.id).toBeDefined()
   })
+
+  // TODO: Add expectations for ResponsePayload
 
   it('registration should fail when email is empty', async () => {
     const res = await postData(registerUrl, { password })
 
-    expect(res.status).toEqual(HTTP_STATUS.BAD_REQUEST)
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     expect(res.body.errors[0].param).toEqual('email')
   })
 
   it('registration should fail when email is not an email', async () => {
     const res = await postData(registerUrl, { email: 'notanemail', password })
 
-    expect(res.status).toEqual(HTTP_STATUS.BAD_REQUEST)
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     expect(res.body.errors[0].param).toEqual('email')
   })
 
   it('registration should fail when password is empty', async () => {
     const res = await postData(registerUrl, { email })
 
-    expect(res.status).toEqual(HTTP_STATUS.BAD_REQUEST)
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     expect(res.body.errors[0].param).toEqual('password')
   })
 
   it('registration should fail when password confirmation is empty', async () => {
     const res = await postData(registerUrl, { email, password })
 
-    expect(res.status).toEqual(HTTP_STATUS.BAD_REQUEST)
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     expect(res.body.errors[0].param).toEqual('password_confirmation')
   })
 
@@ -67,7 +76,7 @@ describe('Authentication Test Suite', () => {
       password_confirmation: 'dontmatch',
     })
 
-    expect(res.status).toEqual(HTTP_STATUS.BAD_REQUEST)
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
     expect(res.body.errors[0].msg).toEqual('Passwords do not match')
   })
 
@@ -77,6 +86,29 @@ describe('Authentication Test Suite', () => {
     const res = await postData(loginUrl, { email, password })
 
     expect(res.status).toEqual(HTTP_STATUS.OK)
-    // expect(res.body.token).toBeDefined()
+    expect(res.body.status).toEqual('ok')
+    expect(res.body.message).toBeDefined()
+    expect(res.body.data.token).toBeDefined()
+  })
+
+  it('login should fail when email is empty', async () => {
+    const res = await postData(loginUrl, { password })
+
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    expect(res.body.errors[0].param).toEqual('email')
+  })
+
+  it('login should fail when email is not an email', async () => {
+    const res = await postData(loginUrl, { email: 'notanemail', password })
+
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    expect(res.body.errors[0].param).toEqual('email')
+  })
+
+  it('login should fail when password is empty', async () => {
+    const res = await postData(loginUrl, { email })
+
+    expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+    expect(res.body.errors[0].param).toEqual('password')
   })
 })

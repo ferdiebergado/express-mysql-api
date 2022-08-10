@@ -8,7 +8,7 @@ export class HttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.isOperational = true
-    Error.captureStackTrace(this, this.constructor)
+    Error.captureStackTrace(this, HttpError)
   }
 }
 
@@ -33,5 +33,14 @@ export class NotFoundHttpError extends HttpError {
 export class UnauthorizedHttpError extends HttpError {
   constructor(message = 'Unauthorized') {
     super(HTTP_STATUS.UNAUTHORIZED, message)
+  }
+}
+
+export class ValidationError extends UnprocessableEntityHttpError {
+  errors: any
+
+  constructor(errors: any) {
+    super('Invalid input')
+    this.errors = errors
   }
 }

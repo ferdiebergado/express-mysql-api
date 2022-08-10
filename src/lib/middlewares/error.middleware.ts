@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express'
-import { HttpError } from '../http/errors'
+import { HttpError, ValidationError } from '../http/errors'
+import { ResponsePayload } from '../http/response.interface'
 import { HTTP_STATUS } from '../http/status'
 
 export const errorHandler = (
@@ -18,7 +19,12 @@ export const errorHandler = (
 
   res.status(statusCode)
 
-  res.json({
+  const payload: ResponsePayload = {
+    status: 'failed',
     message: err.isOperational ? err.message : 'Something went wrong.',
-  })
+  }
+
+  if (err instanceof ValidationError) payload.errors = err.errors
+
+  res.json(payload)
 }

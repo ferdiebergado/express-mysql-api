@@ -14,6 +14,7 @@ const config = {
     origin: '*',
   },
   jwt: {
+    algorithm: 'HS512',
     secret: process.env.KEY || '8g63dl61ykdd',
     expiresIn: '30m',
   },

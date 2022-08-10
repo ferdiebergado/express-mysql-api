@@ -2,9 +2,12 @@ import argon from 'argon2'
 import { UserAlreadyExistsError, UserNotFoundError } from './auth.errors'
 import { generateToken } from '../utils/jwt'
 import userRepository from '../users/user.repository'
+import type { LoginDTO, RegisterDTO } from './auth.dto'
 
 export default {
-  register: async (email: string, password: string) => {
+  register: async (registerDto: RegisterDTO) => {
+    const { email, password } = registerDto
+
     const exists = await userRepository.findUserByEmail(email)
 
     if (exists) throw new UserAlreadyExistsError(email)
@@ -14,7 +17,9 @@ export default {
     return id
   },
 
-  login: async (email: string, password: string) => {
+  login: async (loginDto: LoginDTO) => {
+    const { email, password } = loginDto
+
     const user = await userRepository.findUserByEmail(email)
 
     if (!user) throw new UserNotFoundError()
@@ -25,7 +30,7 @@ export default {
 
     const token = await generateToken({ sub: user.id })
 
-    return { token }
+    return token
   },
 
   // TODO

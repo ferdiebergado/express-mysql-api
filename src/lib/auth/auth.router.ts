@@ -1,4 +1,4 @@
-import express, { Request } from 'express'
+import express from 'express'
 import { CustomValidator, body } from 'express-validator'
 import { validate } from '../middlewares'
 import authController from './auth.controller'
@@ -25,6 +25,14 @@ router.post(
   ]),
   authController.register
 )
-router.post('/login', authController.login)
+
+router.post(
+  '/login',
+  validate([
+    body('email').notEmpty().isEmail().normalizeEmail(),
+    body('password').notEmpty().trim().escape(),
+  ]),
+  authController.login
+)
 
 export default router

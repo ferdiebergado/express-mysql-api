@@ -1,8 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
 import { UnauthorizedHttpError } from '../http/errors'
-import { verifyToken } from '../utils/jwt'
+import { decodeToken } from '../utils/jwt'
 
-export const decodeToken = async (
+export const verifyToken = async (
   req: Request,
   _res: Response,
   next: NextFunction
@@ -13,10 +13,14 @@ export const decodeToken = async (
 
     if (token == null) throw new UnauthorizedHttpError()
 
-    await verifyToken(token)
+    await decodeToken(token)
+
+    // TODO: fix type of user id
+    // req.user = sub
 
     next()
   } catch (error) {
+    // TODO: return response type based on jwt error
     next(error)
   }
 }
