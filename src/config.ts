@@ -3,6 +3,7 @@ const config = {
     host: process.env.HOST || 'localhost',
     port: Number(process.env.PORT) || 3000,
   },
+
   db: {
     host: process.env.DB_HOST || 'localhost',
     port: Number(process.env.DB_PORT) || 3306,
@@ -10,11 +11,13 @@ const config = {
     password: process.env.DB_PASS || '6y5k0yqtxm9l',
     database: process.env.DB_NAME || 'test',
   },
+
   cors: {
     origin: '*',
   },
+
   jwt: {
-    algorithm: 'HS512',
+    algorithm: 'HS512' as const,
     secret: process.env.KEY || '8g63dl61ykdd',
     expiresIn: '30m',
   },
