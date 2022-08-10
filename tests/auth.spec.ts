@@ -1,7 +1,7 @@
 import request from 'supertest'
-import app from '../../app'
+import app from '../src/app'
 import { faker } from '@faker-js/faker'
-import { HTTP_STATUS } from '../http/status'
+import { HTTP_STATUS } from '../src/lib/http/status'
 
 // app setup
 const api = request(app)
