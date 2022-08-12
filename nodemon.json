@@ -1,0 +1,4 @@
+{
+  "ignore": ["tests/*"],
+  "delay": 2500
+}
