@@ -30,6 +30,7 @@ services:
     networks:
       - express-api3-net      
     volumes:
+      - ./docker/mysql:/docker-entrypoint-initdb.d
       - express-api3-mysql-data:/var/lib/mysql
     restart: unless-stopped
 
