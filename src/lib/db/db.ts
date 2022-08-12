@@ -1,5 +1,5 @@
 import mysql, { ResultSetHeader } from 'mysql2'
-import { BaseEntity } from '.'
+import { Entity } from '.'
 import config from '../../config'
 
 export const pool = mysql.createPool(config.db)
@@ -9,7 +9,7 @@ export interface QueryResult<T> {
   id: number
 }
 
-export const query = async <T extends BaseEntity>(
+export const query = async <T extends Entity>(
   sql: string,
   ...params: (string | number)[]
 ) => {
