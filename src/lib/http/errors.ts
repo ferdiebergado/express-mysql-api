@@ -44,3 +44,9 @@ export class ValidationError extends UnprocessableEntityHttpError {
     this.errors = errors
   }
 }
+
+export class InvalidTokenError extends UnauthorizedHttpError {
+  constructor(message: string) {
+    super(message)
+  }
+}

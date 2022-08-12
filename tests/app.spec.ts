@@ -20,4 +20,6 @@ describe('App Test Suite', () => {
 
     expect(res.status).toEqual(HTTP_STATUS.NOT_FOUND)
   })
+
+  it.todo('GET /health returns healthy')
 })

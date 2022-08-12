@@ -1,28 +1,30 @@
-import { ResultSetHeader } from 'mysql2'
 import argon from 'argon2'
-import { query } from '../../db'
+import { db } from '../db'
 import { User } from './user'
 
 const userRepository = {
   findUserByEmail: async (email: string) => {
-    const sqlFindUserByEmail =
-      'SELECT id, email, password FROM users WHERE email = ? LIMIT 1'
+    const sqlFindUserByEmail = 'SELECT * FROM users WHERE email = ? LIMIT 1'
 
-    const users = (await query(sqlFindUserByEmail, [email])) as User[]
+    const result = await db.query<User>(sqlFindUserByEmail, email)
 
-    if (users.length === 0) return null
+    if (result.data.length === 0) return null
 
-    return users[0]
+    const user = result.data[0]
+
+    return user
   },
 
   findUserById: async (id: number) => {
-    const sqlFindUserById = 'SELECT id, email FROM users WHERE id = ? LIMIT 1'
+    const sqlFindUserById = 'SELECT * FROM users WHERE id = ? LIMIT 1'
 
-    const users = (await query(sqlFindUserById, [id])) as User[]
+    const result = await db.query<User>(sqlFindUserById, id)
 
-    if (users.length === 0) return null
+    if (result.data.length === 0) return null
 
-    return users[0]
+    const user = result.data[0]
+
+    return user
   },
 
   createUser: async (email: string, password: string) => {
@@ -30,9 +32,9 @@ const userRepository = {
 
     const hashed = await argon.hash(password)
 
-    const row = (await query(sqlCreateUser, [email, hashed])) as ResultSetHeader
+    const result = await db.query(sqlCreateUser, email, hashed)
 
-    return row.insertId
+    return result.id
   },
 }
 

@@ -17,9 +17,9 @@ const config = {
   },
 
   jwt: {
-    algorithm: 'HS512' as const,
+    algorithm: 'RS256' as const,
     secret: process.env.KEY || '8g63dl61ykdd',
-    expiresIn: '30m',
+    expiresIn: '1h',
   },
 }
 

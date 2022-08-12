@@ -3,6 +3,12 @@ import { UserAlreadyExistsError, UserNotFoundError } from './auth.errors'
 import { generateToken } from '../utils/jwt'
 import userRepository from '../users/user.repository'
 import type { LoginDTO, RegisterDTO } from './auth.dto'
+import { User, UserSession } from '../users/user'
+
+const transformUser = (user: User) => {
+  const { password, ...transformed } = user
+  return transformed
+}
 
 export default {
   register: async (registerDto: RegisterDTO) => {
@@ -28,7 +34,13 @@ export default {
 
     if (!passwordsMatch) throw new UserNotFoundError()
 
-    const token = await generateToken({ sub: user.id })
+    const payload: UserSession = {
+      id: user.id,
+      email: user.email,
+      createdAt: user.createdAt,
+    }
+
+    const token = generateToken(payload)
 
     return token
   },

@@ -1,12 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
-import { ResponsePayload } from '../http/response.interface'
-import { HTTP_STATUS } from '../http/status'
-import auth from './auth'
-import { LoginDTO, RegisterDTO } from './auth.dto'
+import { HTTP_STATUS, ResponsePayload } from '../http'
+import { authDto, auth, authMessages } from '.'
 
 const authController = {
   register: async (
-    req: Request<{}, {}, RegisterDTO>,
+    req: Request<{}, {}, authDto.RegisterDTO>,
     res: Response<ResponsePayload>,
     next: NextFunction
   ) => {
@@ -17,7 +15,7 @@ const authController = {
 
       const payload: ResponsePayload = {
         status: 'ok',
-        message: 'User registered',
+        message: authMessages.REGISTRATION_SUCCESS,
         data: { id },
       }
 
@@ -28,7 +26,7 @@ const authController = {
   },
 
   login: async (
-    req: Request<{}, {}, LoginDTO>,
+    req: Request<{}, {}, authDto.LoginDTO>,
     res: Response<ResponsePayload>,
     next: NextFunction
   ) => {
@@ -39,7 +37,7 @@ const authController = {
 
       const payload: ResponsePayload = {
         status: 'ok',
-        message: 'Logged in',
+        message: authMessages.LOGIN_SUCCESS,
         data: { token },
       }
 

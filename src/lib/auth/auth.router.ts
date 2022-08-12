@@ -17,11 +17,7 @@ router.post(
   validate([
     body('email').notEmpty().isEmail().normalizeEmail(),
     body('password').notEmpty().trim().escape(),
-    body('password_confirmation')
-      .notEmpty()
-      .trim()
-      .escape()
-      .custom(passwordsMatch),
+    body('passwordConfirmation').custom(passwordsMatch).trim().escape(),
   ]),
   authController.register
 )

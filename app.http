@@ -5,7 +5,6 @@
 GET / 
 Host: {{host}}
 Accept: {{json}}
-
 ###
 
 # @name register
@@ -15,6 +14,20 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-    "email": "wit@herobcod.nc",
-    "password": "FlZYPTRBig"
+    "email": "fu@cijed.cg",
+    "password": "bxnb5e0ovi",
+    "password_confirmation": "bxnb5e0ovi"
 }
+###
+
+# @name login
+POST /auth/login
+Host: {{host}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+    "email": "fu@cijed.cg",
+    "password": "bxnb5e0ovi"
+}
+###

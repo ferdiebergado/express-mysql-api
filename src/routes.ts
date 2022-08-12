@@ -1,10 +1,10 @@
 import express, { Request, Response } from 'express'
-import authRoutes from './lib/auth/auth.router'
-import { ResponsePayload } from './lib/http/response.interface'
+import { authRouter } from './lib/auth'
+import { ResponsePayload } from './lib/http'
 
 const router = express.Router()
 
-const rootHandler = (_req: Request, res: Response) => {
+const rootHandler = (_req: Request, res: Response<ResponsePayload>) => {
   const payload: ResponsePayload = {
     status: 'ok',
     message: 'Server is up.',
@@ -14,6 +14,6 @@ const rootHandler = (_req: Request, res: Response) => {
 }
 
 router.get('/', rootHandler)
-router.use('/auth', authRoutes)
+router.use('/auth', authRouter)
 
 export default router
