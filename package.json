@@ -7,7 +7,7 @@
     "dev": "nodemon src/server.ts",
     "test": "jest",
     "docker:dev": "docker compose up",
-    "docker:test": "docker compose exec -it app npm test"
+    "docker:test": "docker compose exec -it app npx jest"
   },
   "keywords": [],
   "author": "",
