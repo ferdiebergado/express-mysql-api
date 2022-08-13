@@ -1,3 +1,4 @@
-import isEmail from './email.validator'
+import { generateToken, verifyToken } from './jwt'
+import { generateSecureKey } from './crypto'
 
-export { isEmail }
+export { generateToken, verifyToken, generateSecureKey }
