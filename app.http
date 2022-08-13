@@ -7,6 +7,12 @@ Host: {{host}}
 Accept: {{json}}
 ###
 
+# @name health
+GET /health 
+Host: {{host}}
+Accept: {{json}}
+###
+
 # @name register
 POST /auth/register
 Host: {{host}}
