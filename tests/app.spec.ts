@@ -21,5 +21,11 @@ describe('App Test Suite', () => {
     expect(res.status).toEqual(HTTP_STATUS.NOT_FOUND)
   })
 
-  it.todo('GET /health returns healthy')
+  it('GET /health returns healthy', async () => {
+    const res = await api.get('/health')
+
+    expect(res.status).toEqual(HTTP_STATUS.OK)
+    expect(res.body.status).toEqual('ok')
+    expect(res.body.message).toEqual('Healthy')
+  })
 })

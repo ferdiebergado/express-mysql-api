@@ -1,6 +1,6 @@
 import argon from 'argon2'
 import { db } from '../db'
-import { User } from './user'
+import { User } from './user.entity'
 
 const userRepository = {
   findUserByEmail: async (email: string) => {

@@ -1,8 +1,10 @@
 import request from 'supertest'
 import app from '../src/app'
 import { faker } from '@faker-js/faker'
-import { HTTP_STATUS } from '../src/lib/http'
+import { HTTP_MESSAGE, HTTP_STATUS } from '../src/lib/http'
 import { authDto, authMessages } from '../src/lib/auth'
+import { generateToken } from '../src/lib/utils/jwt'
+import { UserSession } from '../src/lib/users'
 
 // test proper
 describe('Authentication Test Suite', () => {
@@ -20,21 +22,27 @@ describe('Authentication Test Suite', () => {
     return response
   }
 
+  const getData = () => {
+    const email = faker.internet.email().toLowerCase()
+    const password = faker.random.alpha(10)
+
+    return { email, password }
+  }
+
   // test data
-  const email = faker.internet.email()
-  const password = faker.random.alpha(10)
+  const { email, password } = getData()
   const userData: authDto.RegisterDTO = {
     email,
     password,
     passwordConfirmation: password,
   }
 
+  // endpoints to test
+  const registerUrl = authUrl + '/register'
+  const loginUrl = authUrl + '/login'
+
   describe('User Registration', () => {
-    const registerUrl = authUrl + '/register'
-
-    it('should register a user', async () => {
-      console.log('USERDATA:', userData)
-
+    it('should return the user id', async () => {
       const res = await postData(registerUrl, userData)
 
       expect(res.status).toEqual(HTTP_STATUS.CREATED)
@@ -43,14 +51,12 @@ describe('Authentication Test Suite', () => {
       expect(res.body.data.id).toBeDefined()
     })
 
-    // TODO: Add expectations for ResponsePayload
-
     it('registration should fail when email is empty', async () => {
       const res = await postData(registerUrl, { password })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual('Invalid input')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
@@ -58,6 +64,8 @@ describe('Authentication Test Suite', () => {
       const res = await postData(registerUrl, { email: 'notanemail', password })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
@@ -65,6 +73,8 @@ describe('Authentication Test Suite', () => {
       const res = await postData(registerUrl, { email })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('password')
     })
 
@@ -72,6 +82,8 @@ describe('Authentication Test Suite', () => {
       const res = await postData(registerUrl, { email, password })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('passwordConfirmation')
     })
 
@@ -83,6 +95,8 @@ describe('Authentication Test Suite', () => {
       })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].msg).toEqual('Passwords do not match')
     })
 
@@ -91,9 +105,7 @@ describe('Authentication Test Suite', () => {
   })
 
   describe('User Login', () => {
-    const loginUrl = authUrl + '/login'
-
-    it('should login a user', async () => {
+    it('should return a token', async () => {
       const res = await postData(loginUrl, { email, password })
 
       expect(res.status).toEqual(HTTP_STATUS.OK)
@@ -106,6 +118,8 @@ describe('Authentication Test Suite', () => {
       const res = await postData(loginUrl, { password })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
@@ -120,6 +134,8 @@ describe('Authentication Test Suite', () => {
       const res = await postData(loginUrl, { email })
 
       expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.body.status).toEqual('failed')
+      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('password')
     })
   })
@@ -130,9 +146,121 @@ describe('Authentication Test Suite', () => {
   })
 
   describe('User Authorization', () => {
-    it.todo('request with valid token is processed')
-    it.todo('request fails if token is missing')
-    it.todo('request fails if token is expired')
+    const usersUrl = '/users'
+
+    it('request with valid token is allowed', async () => {
+      const user = getData()
+
+      const newUserData = {
+        ...user,
+        passwordConfirmation: user.password,
+      }
+
+      let response = await postData(registerUrl, newUserData)
+      const id = response.body.data.id
+
+      response = await postData(loginUrl, user)
+
+      const token = response.body.data.token
+
+      response = await api
+        .get(usersUrl + '/' + id)
+        .set('Authorization', 'Bearer ' + token)
+        .send()
+
+      expect(response.status).toEqual(HTTP_STATUS.OK)
+      expect(response.body.data.user.id).toEqual(id)
+      expect(response.body.data.user.email).toEqual(user.email)
+    })
+
+    it('request fails if there is no authorization header', async () => {
+      const user = getData()
+
+      const newUserData = {
+        ...user,
+        passwordConfirmation: user.password,
+      }
+
+      let response = await postData(registerUrl, newUserData)
+      const id = response.body.data.id
+
+      response = await api.get(usersUrl + '/' + id).send()
+
+      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.body.status).toEqual('failed')
+    })
+
+    it('request fails if token is missing in authorization header', async () => {
+      const user = getData()
+
+      const newUserData = {
+        ...user,
+        passwordConfirmation: user.password,
+      }
+
+      let response = await postData(registerUrl, newUserData)
+      const id = response.body.data.id
+      const token = ''
+
+      response = await api
+        .get(usersUrl + '/' + id)
+        .set('Authorization', 'Bearer ' + token)
+        .send()
+
+      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.body.status).toEqual('failed')
+      // expect(response.body.message).toEqual(user.email)
+    })
+
+    it('request fails if token is not a proper jwt', async () => {
+      const user = getData()
+
+      const newUserData = {
+        ...user,
+        passwordConfirmation: user.password,
+      }
+
+      let response = await postData(registerUrl, newUserData)
+      const id = response.body.data.id
+      const token = Buffer.from('u5lmxxar38orrpi9sug5t97sqnfu1xc4').toString(
+        'base64'
+      )
+
+      response = await api
+        .get(usersUrl + '/' + id)
+        .set('Authorization', 'Bearer ' + token)
+        .send()
+
+      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.body.status).toEqual('failed')
+    })
+
+    it('request fails if token is expired', async () => {
+      const user = getData()
+
+      const newUserData = {
+        ...user,
+        passwordConfirmation: user.password,
+      }
+
+      let response = await postData(registerUrl, newUserData)
+      const id = response.body.data.id
+      const payload: UserSession = {
+        id,
+        email: user.email,
+        createdAt: new Date(),
+      }
+      const token = generateToken(payload, 60 * 1000 * 60)
+
+      response = await api
+        .get(usersUrl + '/' + id)
+        .set('Authorization', 'Bearer ' + token)
+        .send()
+
+      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.body.status).toEqual('failed')
+    })
+
     it.todo('request fails if token is malformed')
   })
 })

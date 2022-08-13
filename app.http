@@ -14,9 +14,9 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-    "email": "fu@cijed.cg",
+    "email": "na@sutu.as",
     "password": "bxnb5e0ovi",
-    "password_confirmation": "bxnb5e0ovi"
+    "passwordConfirmation": "bxnb5e0ovi"
 }
 ###
 

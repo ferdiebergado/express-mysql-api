@@ -1,16 +1,32 @@
 import { Request, Response, NextFunction } from 'express'
-import { findUserById } from './user'
+import { ResponsePayload } from '../http'
+import userRepository from './user.repository'
+import { auth, authErrors } from '../auth'
 
 export default {
-    getUser: async (req: Request, res: Response, next: NextFunction) => {
-        try {
-            const id = req.params.id
+  getUser: async (
+    req: Request,
+    res: Response<ResponsePayload>,
+    next: NextFunction
+  ) => {
+    try {
+      const id = req.params.id
 
-            const user = await findUserById(Number(id))
+      const user = await userRepository.findUserById(Number(id))
 
-            res.json(user)
-        } catch (error) {
-            next(error)
-        }
-    },
+      if (!user) throw new authErrors.UserNotFoundError()
+
+      const transformed = auth.transformUser(user)
+
+      const payload: ResponsePayload = {
+        status: 'ok',
+        message: 'User found',
+        data: { user: transformed },
+      }
+
+      res.json(payload)
+    } catch (error) {
+      next(error)
+    }
+  },
 }

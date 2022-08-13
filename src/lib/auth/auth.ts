@@ -1,38 +1,32 @@
 import argon from 'argon2'
-import { UserAlreadyExistsError, UserNotFoundError } from './auth.errors'
+import { authErrors } from '.'
 import { generateToken } from '../utils/jwt'
-import userRepository from '../users/user.repository'
-import type { LoginDTO, RegisterDTO } from './auth.dto'
-import { User, UserSession } from '../users/user'
-
-const transformUser = (user: User) => {
-  const { password, ...transformed } = user
-  return transformed
-}
+import { authDto } from '.'
+import { User, UserSession, userRepository } from '../users'
 
 export default {
-  register: async (registerDto: RegisterDTO) => {
+  register: async (registerDto: authDto.RegisterDTO) => {
     const { email, password } = registerDto
 
     const exists = await userRepository.findUserByEmail(email)
 
-    if (exists) throw new UserAlreadyExistsError(email)
+    if (exists) throw new authErrors.UserAlreadyExistsError(email)
 
     const id = await userRepository.createUser(email, password)
 
     return id
   },
 
-  login: async (loginDto: LoginDTO) => {
+  login: async (loginDto: authDto.LoginDTO) => {
     const { email, password } = loginDto
 
     const user = await userRepository.findUserByEmail(email)
 
-    if (!user) throw new UserNotFoundError()
+    if (!user) throw new authErrors.UserNotFoundError()
 
     const passwordsMatch = await argon.verify(user.password, password)
 
-    if (!passwordsMatch) throw new UserNotFoundError()
+    if (!passwordsMatch) throw new authErrors.UserNotFoundError()
 
     const payload: UserSession = {
       id: user.id,
@@ -43,6 +37,11 @@ export default {
     const token = generateToken(payload)
 
     return token
+  },
+
+  transformUser: (user: User) => {
+    const { password, ...transformed } = user
+    return transformed
   },
 
   // TODO

@@ -1,8 +1,10 @@
 import express from 'express'
-import { decodeToken } from '../auth/auth.middleware'
+import { authorize } from '../auth'
 import userController from './user.controller'
 
-export const userRouter = express.Router()
+const userRouter = express.Router()
 
-userRouter.all('/*', decodeToken)
+userRouter.all('/*', authorize)
 userRouter.get('/:id', userController.getUser)
+
+export default userRouter

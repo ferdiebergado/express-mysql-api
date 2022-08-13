@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from './status'
+import { HTTP_STATUS } from '.'
 
 export class HttpError extends Error {
   statusCode: number
@@ -8,7 +8,7 @@ export class HttpError extends Error {
     super(message)
     this.statusCode = statusCode
     this.isOperational = true
-    Error.captureStackTrace(this, HttpError)
+    Error.captureStackTrace(this, this.constructor)
   }
 }
 
@@ -42,11 +42,5 @@ export class ValidationError extends UnprocessableEntityHttpError {
   constructor(errors: any) {
     super('Invalid input')
     this.errors = errors
-  }
-}
-
-export class InvalidTokenError extends UnauthorizedHttpError {
-  constructor(message: string) {
-    super(message)
   }
 }
