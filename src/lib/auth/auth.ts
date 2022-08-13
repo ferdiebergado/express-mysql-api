@@ -1,7 +1,6 @@
 import argon from 'argon2'
-import { authErrors } from '.'
-import { generateToken } from '../utils/jwt'
-import { authDto } from '.'
+import { authDto, authErrors } from '.'
+import { generateToken } from '../utils'
 import { User, UserSession, userRepository } from '../users'
 
 export default {
