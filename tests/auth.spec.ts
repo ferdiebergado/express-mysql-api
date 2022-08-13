@@ -187,6 +187,7 @@ describe('Authentication Test Suite', () => {
       response = await api.get(usersUrl + '/' + id).send()
 
       expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
     })
 
@@ -208,6 +209,7 @@ describe('Authentication Test Suite', () => {
         .send()
 
       expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
       // expect(response.body.message).toEqual(user.email)
     })
@@ -232,7 +234,9 @@ describe('Authentication Test Suite', () => {
         .send()
 
       expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
+      expect(response.body.message).toEqual('jwt malformed')
     })
 
     it('request fails if token is expired', async () => {
@@ -258,7 +262,9 @@ describe('Authentication Test Suite', () => {
         .send()
 
       expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
+      expect(response.body.message).toEqual('jwt expired')
     })
 
     it.todo('request fails if token is malformed')
