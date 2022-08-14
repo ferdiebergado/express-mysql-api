@@ -5,12 +5,12 @@ import { auth, authErrors } from '../auth'
 
 export default {
   getUser: async (
-    req: Request,
+    req: Request<{ id: number }>,
     res: Response<ResponsePayload>,
     next: NextFunction
   ) => {
     try {
-      const id = req.params.id
+      const { id } = req.params
 
       const user = await userRepository.findUserById(Number(id))
 

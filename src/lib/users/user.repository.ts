@@ -1,40 +1,49 @@
 import argon from 'argon2'
+import { ResultSetHeader } from 'mysql2'
 import { db } from '../db'
 import { User } from './user.entity'
 
 const userRepository = {
   findUserByEmail: async (email: string) => {
-    const sqlFindUserByEmail = 'SELECT * FROM users WHERE email = ? LIMIT 1'
+    const sqlFindUserByEmail =
+      'SELECT * FROM users WHERE email = :email LIMIT 1'
 
-    const result = await db.query<User>(sqlFindUserByEmail, email)
+    const result = await db.execute(sqlFindUserByEmail, { email })
 
-    if (result.data.length === 0) return null
+    const users = result as User[]
 
-    const user = result.data[0]
+    if (users.length === 0) return null
+
+    const user = users[0]
 
     return user
   },
 
   findUserById: async (id: number) => {
-    const sqlFindUserById = 'SELECT * FROM users WHERE id = ? LIMIT 1'
+    const sqlFindUserById = 'SELECT * FROM users WHERE id = :id LIMIT 1'
 
-    const result = await db.query<User>(sqlFindUserById, id)
+    const result = await db.execute(sqlFindUserById, { id })
 
-    if (result.data.length === 0) return null
+    const users = result as User[]
 
-    const user = result.data[0]
+    if (users.length === 0) return null
+
+    const user = users[0]
 
     return user
   },
 
   createUser: async (email: string, password: string) => {
-    const sqlCreateUser = 'INSERT INTO users (email, password) VALUES (?, ?)'
+    const sqlCreateUser =
+      'INSERT INTO users (email, password) VALUES (:email, :password)'
 
     const hashed = await argon.hash(password)
 
-    const result = await db.query(sqlCreateUser, email, hashed)
+    const result = await db.execute(sqlCreateUser, { email, password: hashed })
 
-    return result.id
+    const { insertId } = result as ResultSetHeader
+
+    return insertId
   },
 }
 

@@ -15,7 +15,7 @@ const passwordsMatch: CustomValidator = (passwordConfirmation, { req }) => {
 router.post(
   '/register',
   validate([
-    body('email').notEmpty().isEmail().normalizeEmail(),
+    body('email').notEmpty().isEmail(),
     body('password').notEmpty().trim().escape(),
     body('passwordConfirmation').custom(passwordsMatch).trim().escape(),
   ]),
@@ -25,7 +25,7 @@ router.post(
 router.post(
   '/login',
   validate([
-    body('email').notEmpty().isEmail().normalizeEmail(),
+    body('email').notEmpty().isEmail(),
     body('password').notEmpty().trim().escape(),
   ]),
   authController.login

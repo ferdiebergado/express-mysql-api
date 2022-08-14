@@ -5,8 +5,7 @@ export default async (): Promise<Config.InitialOptions> => {
     preset: 'ts-jest',
     testEnvironment: 'node',
     roots: ['tests'],
-    setupFilesAfterEnv: ['<rootDir>/setupTests.ts'],
+    setupFilesAfterEnv: ['<rootDir>setupTests.ts'],
     verbose: true,
-    testTimeout: 10000,
   }
 }

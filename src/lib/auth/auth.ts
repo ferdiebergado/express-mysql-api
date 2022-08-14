@@ -1,7 +1,8 @@
 import argon from 'argon2'
 import { authDto, authErrors } from '.'
 import { generateToken } from '../utils'
-import { User, UserSession, userRepository } from '../users'
+import { User, userRepository } from '../users'
+import { JwtPayload } from '../utils/jwt'
 
 export default {
   register: async (registerDto: authDto.RegisterDTO) => {
@@ -9,7 +10,7 @@ export default {
 
     const exists = await userRepository.findUserByEmail(email)
 
-    if (exists) throw new authErrors.UserAlreadyExistsError(email)
+    if (exists) throw new authErrors.UserAlreadyExistsError()
 
     const id = await userRepository.createUser(email, password)
 
@@ -27,10 +28,8 @@ export default {
 
     if (!passwordsMatch) throw new authErrors.UserNotFoundError()
 
-    const payload: UserSession = {
+    const payload: JwtPayload = {
       id: user.id,
-      email: user.email,
-      createdAt: user.createdAt,
     }
 
     const token = generateToken(payload)

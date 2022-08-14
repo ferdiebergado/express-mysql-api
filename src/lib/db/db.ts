@@ -1,32 +1,108 @@
-import mysql, { ResultSetHeader } from 'mysql2'
-import { Entity } from '.'
+import mysql from 'mysql2'
+import fs from 'fs/promises'
+import path from 'path'
 import config from '../../config'
 
-export const pool = mysql.createPool(config.db).promise()
+const _pool = () => {
+  let pool: mysql.Pool | null
 
-export interface QueryResult<T> {
-  data: T[]
-  id: number
+  return {
+    get: () => {
+      if (pool) return pool
+
+      pool = mysql.createPool(config.db)
+
+      return pool
+    },
+
+    release: (): Promise<void> => {
+      console.log('Closing database connection...')
+
+      if (!pool) return Promise.resolve()
+
+      return new Promise((resolve, reject) => {
+        pool!.end((err) => {
+          if (err) return reject(err)
+
+          pool = null
+
+          resolve()
+        })
+      })
+    },
+  }
 }
 
-export const query = async <T extends Entity>(
+export const Pool = _pool()
+
+export const pool = Pool.get()
+
+pool.on('acquire', function (connection) {
+  console.log('Connection %d acquired', connection.threadId)
+})
+
+pool.on('enqueue', function () {
+  console.log('Waiting for available connection slot...')
+})
+
+pool.on('release', function (connection) {
+  console.log('Connection %d released', connection.threadId)
+})
+
+const promisePool = pool.promise()
+
+export const execute = async (
   sql: string,
-  ...params: (string | number)[]
+  params: any | any[] | { [param: string]: any }
 ) => {
-  const [rows, _] = await pool.execute(sql, params)
-
-  const result: QueryResult<T> = {
-    data: [],
-    id: 0,
-  }
-
-  if (rows.constructor.name === 'ResultSetHeader') {
-    const info = rows as ResultSetHeader
-
-    result.id = info.insertId
-  } else {
-    result.data = rows as T[]
-  }
+  const [result] = await promisePool.execute(sql, params)
 
   return result
+}
+
+export const query = async (sql: string) => {
+  const [result] = await promisePool.query(sql)
+
+  return result
+}
+
+export const resetDb = async () => {
+  const conn = await promisePool.getConnection()
+
+  try {
+    await conn.beginTransaction()
+    await conn.query('SET FOREIGN_KEY_CHECKS = 0')
+
+    const schema = config.db.database
+    const [rows] = await conn.execute(
+      'SELECT table_name FROM information_schema.tables WHERE table_schema = :schema',
+      { schema }
+    )
+
+    const tables = rows as any[]
+
+    tables.forEach(async (table: Record<string, any>) => {
+      await conn.execute('DROP TABLE IF EXISTS `:table`', {
+        table: table.TABLE_NAME,
+      })
+    })
+
+    const sqlDir = path.join(__dirname, 'sql')
+    const files = await fs.readdir(sqlDir)
+
+    files.forEach(async (file) => {
+      const sqlFile = path.join(sqlDir, file)
+
+      const sql = await fs.readFile(sqlFile, { encoding: 'utf-8' })
+
+      await conn.query(sql)
+    })
+
+    await conn.query('SET FOREIGN_KEY_CHECKS = 1')
+    await conn.commit()
+  } catch (error) {
+    await conn.rollback()
+    console.error(error)
+    throw error
+  }
 }

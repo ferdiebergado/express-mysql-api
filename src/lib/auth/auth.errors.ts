@@ -1,14 +1,15 @@
-import { httpErrors } from '../http'
+import { httpErrors, HTTP_MESSAGE } from '../http'
+import { authMessages } from '.'
 
-export class UserAlreadyExistsError extends httpErrors.BadRequestHttpError {
-  constructor(email: string) {
-    super(`User with email: ${email} already exists.`)
+export class UserAlreadyExistsError extends httpErrors.UnprocessableEntityHttpError {
+  constructor() {
+    super(authMessages.USER_EXISTS)
   }
 }
 
 export class UserNotFoundError extends httpErrors.NotFoundHttpError {
   constructor() {
-    super('User not found.')
+    super(authMessages.USER_NOTFOUND)
   }
 }
 

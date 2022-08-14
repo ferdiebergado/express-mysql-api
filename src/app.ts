@@ -6,19 +6,20 @@ import routes from './routes'
 import { requestLogger, errorHandler, notFoundHandler } from './lib/middlewares'
 
 const app = express()
+const PORT = config.app.port
+const corsOptions = {
+  origin: config.cors.origin,
+}
 
-app.set('port', config.app.port)
+app.set('port', PORT)
 
 app.disable('x-powered-by')
 app.disable('etag')
 
-app.use(
-  cors({
-    origin: config.cors.origin,
-  })
-)
+app.use(cors(corsOptions))
 app.use(requestLogger)
-app.use(express.json())
+app.use(express.urlencoded({ extended: true, limit: '1kb' }))
+app.use(express.json({ limit: '1kb' }))
 
 app.use(routes)
 

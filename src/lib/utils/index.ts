@@ -1,4 +1,5 @@
-import { generateToken, verifyToken } from './jwt'
+import { generateToken, verifyToken, JwtPayload } from './jwt'
 import { generateSecureKey } from './crypto'
+import logger from './logger'
 
-export { generateToken, verifyToken, generateSecureKey }
+export { generateToken, verifyToken, generateSecureKey, JwtPayload, logger }
