@@ -1,5 +1,6 @@
 import * as httpErrors from './errors'
-import { HTTP_STATUS, HTTP_MESSAGE } from './status'
+import { StatusCode, StatusPhrase } from './status'
 import { ResponsePayload } from './response.interface'
+import { Message } from './http.messages'
 
-export { httpErrors, HTTP_STATUS, HTTP_MESSAGE, ResponsePayload }
+export { httpErrors, StatusCode, StatusPhrase, ResponsePayload, Message }

@@ -2,12 +2,13 @@ import express from 'express'
 import { CustomValidator, body } from 'express-validator'
 import { validate } from '../middlewares'
 import authController from './auth.controller'
+import { authMessages } from './auth.messages'
 
 const router = express.Router()
 
 const passwordsMatch: CustomValidator = (passwordConfirmation, { req }) => {
   if (passwordConfirmation !== req.body.password)
-    throw new Error('Passwords do not match')
+    throw new Error(authMessages.PASSWORD_MISMATCH)
 
   return true
 }

@@ -1,4 +1,4 @@
-import { HTTP_STATUS } from '.'
+import { StatusCode, StatusPhrase, Message } from '.'
 
 export class HttpError extends Error {
   statusCode: number
@@ -13,26 +13,26 @@ export class HttpError extends Error {
 }
 
 export class BadRequestHttpError extends HttpError {
-  constructor(message: string) {
-    super(HTTP_STATUS.BAD_REQUEST, message)
+  constructor(message: string = StatusPhrase.BAD_REQUEST) {
+    super(StatusCode.BAD_REQUEST, message)
   }
 }
 
 export class UnprocessableEntityHttpError extends HttpError {
-  constructor(message: string) {
-    super(HTTP_STATUS.UNPROCESSABLE_ENTITY, message)
+  constructor(message: string = StatusPhrase.UNPROCESSABLE_ENTITY) {
+    super(StatusCode.UNPROCESSABLE_ENTITY, message)
   }
 }
 
 export class NotFoundHttpError extends HttpError {
-  constructor(message = 'Not found') {
-    super(HTTP_STATUS.NOT_FOUND, message)
+  constructor(message: string = StatusPhrase.NOT_FOUND) {
+    super(StatusCode.NOT_FOUND, message)
   }
 }
 
 export class UnauthorizedHttpError extends HttpError {
-  constructor(message = 'Unauthorized') {
-    super(HTTP_STATUS.UNAUTHORIZED, message)
+  constructor(message: string = StatusPhrase.UNAUTHORIZED) {
+    super(StatusCode.UNAUTHORIZED, message)
   }
 }
 
@@ -40,7 +40,7 @@ export class ValidationError extends UnprocessableEntityHttpError {
   errors: any
 
   constructor(errors: any) {
-    super('Invalid input')
+    super(Message.INVALID_INPUT)
     this.errors = errors
   }
 }

@@ -1,4 +1,4 @@
-import { httpErrors, HTTP_MESSAGE } from '../http'
+import { httpErrors } from '../http'
 import { authMessages } from '.'
 
 export class UserAlreadyExistsError extends httpErrors.UnprocessableEntityHttpError {

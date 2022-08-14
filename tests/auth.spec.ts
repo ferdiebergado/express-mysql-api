@@ -1,7 +1,7 @@
 import request from 'supertest'
 import { faker } from '@faker-js/faker'
 import app from '../src/app'
-import { HTTP_MESSAGE, HTTP_STATUS } from '../src/lib/http'
+import { Message, StatusCode } from '../src/lib/http'
 import { authDto, authMessages } from '../src/lib/auth'
 import { generateToken, JwtPayload } from '../src/lib/utils'
 import { db } from '../src/lib/db'
@@ -57,7 +57,7 @@ describe('User Authentication', () => {
 
       console.log(userData)
 
-      expect(res.status).toEqual(HTTP_STATUS.CREATED)
+      expect(res.status).toEqual(StatusCode.CREATED)
       expect(res.body.status).toEqual('ok')
       expect(res.body.message).toEqual(authMessages.REGISTRATION_SUCCESS)
       expect(res.body.data.id).toBeDefined()
@@ -66,36 +66,36 @@ describe('User Authentication', () => {
     it('should fail when email is empty', async () => {
       const res = await postData(registerUrl, { password })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
     it('should fail when email is not an email', async () => {
       const res = await postData(registerUrl, { email: 'notanemail', password })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
     it('should fail when password is empty', async () => {
       const res = await postData(registerUrl, { email })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('password')
     })
 
     it('should fail when password confirmation is empty', async () => {
       const res = await postData(registerUrl, { email, password })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('passwordConfirmation')
     })
 
@@ -106,10 +106,10 @@ describe('User Authentication', () => {
         passwordConfirmation: 'dontmatch',
       })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
-      expect(res.body.errors[0].msg).toEqual('Passwords do not match')
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
+      expect(res.body.errors[0].msg).toEqual(authMessages.PASSWORD_MISMATCH)
     })
 
     it.todo('should fail when password is too short')
@@ -127,7 +127,7 @@ describe('User Authentication', () => {
 
       const res = await postData(registerUrl, user)
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
       expect(res.body.message).toEqual(authMessages.USER_EXISTS)
     })
@@ -156,7 +156,7 @@ describe('User Authentication', () => {
     it('should return a token', async () => {
       const res = await postData(loginUrl, loginData)
 
-      expect(res.status).toEqual(HTTP_STATUS.OK)
+      expect(res.status).toEqual(StatusCode.OK)
       expect(res.body.status).toEqual('ok')
       expect(res.body.message).toEqual(authMessages.LOGIN_SUCCESS)
       expect(res.body.data.token).toBeDefined()
@@ -165,25 +165,25 @@ describe('User Authentication', () => {
     it('should fail when email is empty', async () => {
       const res = await postData(loginUrl, { password })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
     it('should fail when email is not an email', async () => {
       const res = await postData(loginUrl, { email: 'notanemail', password })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.errors[0].param).toEqual('email')
     })
 
     it('should fail when password is empty', async () => {
       const res = await postData(loginUrl, { email })
 
-      expect(res.status).toEqual(HTTP_STATUS.UNPROCESSABLE_ENTITY)
+      expect(res.status).toEqual(StatusCode.UNPROCESSABLE_ENTITY)
       expect(res.body.status).toEqual('failed')
-      expect(res.body.message).toEqual(HTTP_MESSAGE.INVALID_INPUT)
+      expect(res.body.message).toEqual(Message.INVALID_INPUT)
       expect(res.body.errors[0].param).toEqual('password')
     })
   })
@@ -224,7 +224,7 @@ describe('User Authentication', () => {
         .get(usersUrl + '/' + id)
         .set('Authorization', 'Bearer ' + token)
 
-      expect(response.status).toEqual(HTTP_STATUS.OK)
+      expect(response.status).toEqual(StatusCode.OK)
       expect(response.body.data.user.id).toEqual(id)
       expect(response.body.data.user.email).toEqual(email)
     })
@@ -232,7 +232,7 @@ describe('User Authentication', () => {
     it('fails if there is no authorization header', async () => {
       let response = await api.get(usersUrl + '/' + id)
 
-      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
       // TODO: use message constants
       expect(response.body.status).toEqual('failed')
     })
@@ -244,7 +244,7 @@ describe('User Authentication', () => {
         .get(usersUrl + '/' + id)
         .set('Authorization', 'Bearer ' + token)
 
-      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
       // TODO: use message constants
       expect(response.body.status).toEqual('failed')
       // expect(response.body.message).toEqual(user.email)
@@ -259,7 +259,7 @@ describe('User Authentication', () => {
         .get(usersUrl + '/' + id)
         .set('Authorization', 'Bearer ' + token)
 
-      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
       // TODO: use message constants
       expect(response.body.status).toEqual('failed')
       expect(response.body.message).toEqual('jwt malformed')
@@ -277,7 +277,7 @@ describe('User Authentication', () => {
         .get(usersUrl + '/' + id)
         .set('Authorization', 'Bearer ' + token)
 
-      expect(response.status).toEqual(HTTP_STATUS.UNAUTHORIZED)
+      expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
       // TODO: use message constants
       expect(response.body.status).toEqual('failed')
       expect(response.body.message).toEqual('jwt expired')

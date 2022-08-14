@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
-import { HTTP_STATUS, ResponsePayload } from '../http'
+import { StatusCode, ResponsePayload } from '../http'
 import { authDto, auth, authMessages } from '.'
 
 const authController = {
@@ -19,7 +19,7 @@ const authController = {
         data: { id },
       }
 
-      res.status(HTTP_STATUS.CREATED).json(payload)
+      res.status(StatusCode.CREATED).json(payload)
     } catch (error) {
       next(error)
     }

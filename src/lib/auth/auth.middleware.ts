@@ -16,6 +16,7 @@ export const authorize = async (
 
     const session = await verifyToken(token)
 
+    // TODO: dont use session
     res.locals['session'] = session
 
     next()
