@@ -3,29 +3,43 @@ import fs from 'fs'
 import path from 'path'
 import config from '../../config'
 import { authErrors } from '../auth'
-import { UserSession } from '../users'
+
+// standard claims https://datatracker.ietf.org/doc/html/rfc7519#section-4.1
+export interface JwtPayload {
+  [key: string]: any
+  iss?: string | undefined
+  sub?: string | undefined
+  aud?: string | string[] | undefined
+  exp?: number | undefined
+  nbf?: number | undefined
+  iat?: number | undefined
+  jti?: string | undefined
+}
 
 const { algorithm } = config.jwt
 
-export const generateToken = (payload: UserSession, backtime = 0) => {
-  const { expiresIn } = config.jwt
+const readKeyFile = (keyFile: string) => {
+  return fs.readFileSync(path.join(__dirname, '../../../', keyFile))
+}
 
-  const privateKey = fs.readFileSync(
-    path.join(__dirname, '../../../private.pem')
-  )
+export const generateToken = (payload: JwtPayload, moveBackMs = 0) => {
+  const { privateKey, expiresIn } = config.jwt
 
-  const iat = Math.floor(Date.now() / 1000) - backtime
+  const iat = Math.floor(Date.now() / 1000) - moveBackMs
 
-  return jwt.sign({ ...payload, iat }, privateKey, { algorithm, expiresIn })
+  return jwt.sign({ ...payload, iat }, readKeyFile(privateKey), {
+    algorithm,
+    expiresIn,
+  })
 }
 
 export const verifyToken = (token: string) => {
-  const publicKey = fs.readFileSync(path.join(__dirname, '../../../public.pem'))
+  const { publicKey } = config.jwt
 
   return new Promise((resolve, reject) => {
     jwt.verify(
       token,
-      publicKey,
+      readKeyFile(publicKey),
       { algorithms: [algorithm] },
       (err, decoded) => {
         if (err) {

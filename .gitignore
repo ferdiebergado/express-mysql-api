@@ -129,7 +129,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-private.key
-public.key
-private.pem
-public.pem
+*.key
+*.pem

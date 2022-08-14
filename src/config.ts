@@ -1,3 +1,6 @@
+import { PoolOptions } from 'mysql2'
+import cors from 'cors'
+
 const config = {
   app: {
     host: process.env.HOST || 'localhost',
@@ -10,15 +13,21 @@ const config = {
     user: process.env.DB_USER || 'user',
     password: process.env.DB_PASS || '6y5k0yqtxm9l',
     database: process.env.DB_NAME || 'test',
-  },
+    supportBigNumbers: true,
+    waitForConnections: true,
+    connectionLimit: 10,
+    queueLimit: 0,
+    namedPlaceholders: true,
+  } as PoolOptions,
 
   cors: {
     origin: '*',
-  },
+  } as cors.CorsOptions,
 
   jwt: {
-    algorithm: 'RS256' as const,
-    secret: process.env.KEY || '8g63dl61ykdd',
+    algorithm: 'ES256' as const,
+    privateKey: process.env.PRIVATE_KEY || 'private.key',
+    publicKey: process.env.PUBLIC_KEY || 'public.key',
     expiresIn: '1h',
   },
 }
