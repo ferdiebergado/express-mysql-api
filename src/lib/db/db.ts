@@ -4,13 +4,31 @@ import path from 'path'
 import config from '../../config'
 
 const _pool = () => {
-  let pool: mysql.Pool | null
+  let pool: mysql.Pool | undefined
 
   return {
     get: () => {
       if (pool) return pool
 
       pool = mysql.createPool(config.db)
+
+      console.log('Connected to the database')
+
+      pool.on('connection', (conn) => {
+        console.log('Connection %d created', conn.threadId)
+      })
+
+      pool.on('acquire', function (connection) {
+        console.log('Connection %d acquired', connection.threadId)
+      })
+
+      pool.on('enqueue', function () {
+        console.log('Waiting for available connection slot...')
+      })
+
+      pool.on('release', function (connection) {
+        console.log('Connection %d released', connection.threadId)
+      })
 
       return pool
     },
@@ -24,7 +42,9 @@ const _pool = () => {
         pool?.end((err) => {
           if (err) return reject(err)
 
-          pool = null
+          pool = undefined
+
+          console.log('Database closed')
 
           resolve()
         })
@@ -36,18 +56,6 @@ const _pool = () => {
 export const Pool = _pool()
 
 export const pool = Pool.get()
-
-pool.on('acquire', function (connection) {
-  console.log('Connection %d acquired', connection.threadId)
-})
-
-pool.on('enqueue', function () {
-  console.log('Waiting for available connection slot...')
-})
-
-pool.on('release', function (connection) {
-  console.log('Connection %d released', connection.threadId)
-})
 
 const promisePool = pool.promise()
 
