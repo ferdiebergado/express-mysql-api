@@ -8,10 +8,11 @@
     "test": "jest",
     "docker:dev": "docker compose up",
     "docker:test": "docker compose exec -it app npx jest",
-    "prepare": "husky install"
+    "prepare": "husky install",
+    "lint": "eslint \"./src/**\""
   },
   "keywords": [],
-  "author": "",
+  "author": "Ferdinand Saporas Bergado <ferdiebergado@gmail.com>",
   "license": "MIT",
   "devDependencies": {
     "@faker-js/faker": "7.3.0",
@@ -48,5 +49,6 @@
     "jsonwebtoken": "8.5.1",
     "mysql2": "2.3.3",
     "winston": "3.8.1"
-  }
+  },
+  "type": "module"
 }
