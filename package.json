@@ -7,9 +7,10 @@
     "dev": "nodemon src/server.ts",
     "test": "jest",
     "docker:dev": "docker compose up",
-    "docker:test": "docker compose exec -it app npx jest",
+    "docker:test": "docker compose exec app npx jest",
     "prepare": "husky install",
-    "lint": "eslint \"./src/**\""
+    "lint": "eslint \"./src/**\"",
+    "docker:husky": "docker compose exec -T app npx jest"
   },
   "keywords": [],
   "author": "Ferdinand Saporas Bergado <ferdiebergado@gmail.com>",
