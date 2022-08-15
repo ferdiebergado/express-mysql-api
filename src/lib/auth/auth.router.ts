@@ -1,8 +1,7 @@
 import express from 'express'
 import { CustomValidator, body } from 'express-validator'
 import { validate } from '../middlewares'
-import authController from './auth.controller'
-import { authMessages } from './auth.messages'
+import { authController, authMessages } from '.'
 
 const router = express.Router()
 

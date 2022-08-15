@@ -4,7 +4,13 @@ import { authDto, auth, authMessages } from '.'
 
 const authController = {
   register: async (
-    req: Request<{}, {}, authDto.RegisterDTO>,
+    req: Request<
+      {
+        [key: string]: string
+      },
+      any,
+      authDto.RegisterDTO
+    >,
     res: Response<ResponsePayload>,
     next: NextFunction
   ) => {
@@ -26,7 +32,13 @@ const authController = {
   },
 
   login: async (
-    req: Request<{}, {}, authDto.LoginDTO>,
+    req: Request<
+      {
+        [key: string]: string
+      },
+      any,
+      authDto.LoginDTO
+    >,
     res: Response<ResponsePayload>,
     next: NextFunction
   ) => {

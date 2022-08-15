@@ -14,9 +14,7 @@ const userRepository = {
 
     if (users.length === 0) return null
 
-    const user = users[0]
-
-    return user
+    return users[0]
   },
 
   findUserById: async (id: number) => {
@@ -28,9 +26,7 @@ const userRepository = {
 
     if (users.length === 0) return null
 
-    const user = users[0]
-
-    return user
+    return users[0]
   },
 
   createUser: async (email: string, password: string) => {

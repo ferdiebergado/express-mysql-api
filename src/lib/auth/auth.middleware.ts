@@ -9,15 +9,14 @@ export const authorize = async (
   next: NextFunction
 ) => {
   try {
-    const authHeader = req.headers['authorization']
+    const authHeader = req.headers.authorization
     const token = authHeader && authHeader.split(' ')[1]
 
     if (!token) throw new UnauthorizedHttpError()
 
-    const session = await verifyToken(token)
+    const user = await verifyToken(token)
 
-    // TODO: dont use session
-    res.locals['session'] = session
+    res.locals.user = user
 
     next()
   } catch (error) {

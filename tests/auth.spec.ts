@@ -14,12 +14,10 @@ describe('User Authentication', () => {
 
   // helper functions
   const postData = async (url: string, data: Record<string, any>) => {
-    const response = await api
+    return await api
       .post(url)
       .set('content-type', 'application/json')
       .send(data)
-
-    return response
   }
 
   const getData = () => {
@@ -54,8 +52,6 @@ describe('User Authentication', () => {
   describe('User Registration', () => {
     it('should return the user id', async () => {
       const res = await postData(registerUrl, userData)
-
-      console.log(userData)
 
       expect(res.status).toEqual(StatusCode.CREATED)
       expect(res.body.status).toEqual('ok')
@@ -137,7 +133,6 @@ describe('User Authentication', () => {
     let loginData: authDto.LoginDTO
     let email: string
     let password: string
-    let id: number
 
     beforeAll(async () => {
       loginData = getData()
@@ -149,8 +144,7 @@ describe('User Authentication', () => {
         passwordConfirmation: loginData.password,
       }
 
-      const response = await postData(registerUrl, newUserData)
-      id = response.body.data.id
+      await postData(registerUrl, newUserData)
     })
 
     it('should return a token', async () => {
@@ -230,10 +224,9 @@ describe('User Authentication', () => {
     })
 
     it('fails if there is no authorization header', async () => {
-      let response = await api.get(usersUrl + '/' + id)
+      const response = await api.get(usersUrl + '/' + id)
 
       expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
-      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
     })
 
@@ -245,9 +238,7 @@ describe('User Authentication', () => {
         .set('Authorization', 'Bearer ' + token)
 
       expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
-      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
-      // expect(response.body.message).toEqual(user.email)
     })
 
     it('fails if token is not a proper jwt', async () => {
@@ -255,14 +246,13 @@ describe('User Authentication', () => {
         'base64'
       )
 
-      let response = await api
+      const response = await api
         .get(usersUrl + '/' + id)
         .set('Authorization', 'Bearer ' + token)
 
       expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
-      // TODO: use message constants
       expect(response.body.status).toEqual('failed')
-      expect(response.body.message).toEqual('jwt malformed')
+      expect(response.body.message).toEqual(authMessages.JWT_MALFORMED)
     })
 
     it('fails if token is expired', async () => {
@@ -280,7 +270,7 @@ describe('User Authentication', () => {
       expect(response.status).toEqual(StatusCode.UNAUTHORIZED)
       // TODO: use message constants
       expect(response.body.status).toEqual('failed')
-      expect(response.body.message).toEqual('jwt expired')
+      expect(response.body.message).toEqual(authMessages.JWT_EXPIRED)
     })
 
     it.todo('fails if token is malformed')

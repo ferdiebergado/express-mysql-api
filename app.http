@@ -37,3 +37,9 @@ Content-Type: {{json}}
     "password": "bxnb5e0ovi"
 }
 ###
+
+# @name getUser
+GET /users/1
+Host: {{host}}
+Accept: {{json}}
+###

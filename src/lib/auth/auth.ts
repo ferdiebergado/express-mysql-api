@@ -12,9 +12,7 @@ export default {
 
     if (exists) throw new authErrors.UserAlreadyExistsError()
 
-    const id = await userRepository.createUser(email, password)
-
-    return id
+    return await userRepository.createUser(email, password)
   },
 
   login: async (loginDto: authDto.LoginDTO) => {
@@ -32,9 +30,7 @@ export default {
       id: user.id,
     }
 
-    const token = generateToken(payload)
-
-    return token
+    return generateToken(payload)
   },
 
   transformUser: (user: User) => {

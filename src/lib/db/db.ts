@@ -21,7 +21,7 @@ const _pool = () => {
       if (!pool) return Promise.resolve()
 
       return new Promise((resolve, reject) => {
-        pool!.end((err) => {
+        pool?.end((err) => {
           if (err) return reject(err)
 
           pool = null

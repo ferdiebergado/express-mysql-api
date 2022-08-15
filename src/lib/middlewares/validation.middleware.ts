@@ -4,7 +4,7 @@ import { ValidationError } from '../http/errors'
 
 export const validate = <T>(validations: ValidationChain[]) => {
   return async (
-    req: Request<{}, {}, T>,
+    req: Request<Record<string, unknown>, Record<string, unknown>, T>,
     _res: Response,
     next: NextFunction
   ) => {
