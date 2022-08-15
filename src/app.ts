@@ -1,16 +1,24 @@
 import 'dotenv/config'
 import express from 'express'
 import cors from 'cors'
+import { validateEnv } from './lib/utils'
 import config from './config'
 import routes from './routes'
 import { requestLogger, errorHandler, notFoundHandler } from './lib/middlewares'
 
+validateEnv()
+
+const { host, port } = config.app
+
+const HOST = host
+const PORT = port
+
 const app = express()
-const PORT = config.app.port
 const corsOptions = {
   origin: config.cors.origin,
 }
 
+app.set('host', HOST)
 app.set('port', PORT)
 
 app.disable('x-powered-by')
