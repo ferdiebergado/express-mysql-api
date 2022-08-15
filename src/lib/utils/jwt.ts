@@ -33,7 +33,7 @@ export const generateToken = (payload: JwtPayload, moveBackMs = 0) => {
   })
 }
 
-export const verifyToken = (token: string) => {
+export const verifyToken = (token: string): Promise<JwtPayload> => {
   const { publicKey } = config.jwt
 
   return new Promise((resolve, reject) => {
@@ -55,7 +55,7 @@ export const verifyToken = (token: string) => {
           return reject(err)
         }
 
-        resolve(decoded)
+        resolve(decoded as JwtPayload)
       }
     )
   })
