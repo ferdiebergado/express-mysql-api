@@ -1,10 +1,8 @@
 import { Request, Response, NextFunction } from 'express'
-import { HttpError, ValidationError } from '../http/errors'
-import { ResponsePayload } from '../http/response.interface'
-import { StatusCode } from '../http/status'
+import { httpErrors, ResponsePayload, StatusCode } from '../http'
 
 export const errorHandler = (
-  err: HttpError,
+  err: httpErrors.HttpError,
   _req: Request,
   res: Response,
   next: NextFunction
@@ -24,7 +22,7 @@ export const errorHandler = (
     message: err.isOperational ? err.message : 'Something went wrong.',
   }
 
-  if (err instanceof ValidationError) payload.errors = err.errors
+  if (err instanceof httpErrors.ValidationError) payload.errors = err.errors
 
   res.json(payload)
 }

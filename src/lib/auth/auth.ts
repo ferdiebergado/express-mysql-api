@@ -1,8 +1,7 @@
 import argon from 'argon2'
 import { authDto, authErrors } from '.'
-import { generateToken } from '../utils'
+import { JwtPayload, generateToken } from '../utils'
 import { User, userRepository } from '../users'
-import { JwtPayload } from '../utils/jwt'
 
 export default {
   register: async (registerDto: authDto.RegisterDTO) => {
