@@ -8,17 +8,13 @@ import { requestLogger, errorHandler, notFoundHandler } from './lib/middlewares'
 
 validateEnv()
 
-const { host, port } = config.app
-
-const HOST = host
-const PORT = port
+const PORT = config.app.port
 
 const app = express()
 const corsOptions = {
   origin: config.cors.origin,
 }
 
-app.set('host', HOST)
 app.set('port', PORT)
 
 app.disable('x-powered-by')

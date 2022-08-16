@@ -2,18 +2,15 @@ import http from 'http'
 import app from './app'
 import { db } from './lib/db'
 
-const HOST = app.get('host')
 const PORT = app.get('port')
 
 const server = http.createServer(app)
-const pool = db.Pool
 
-server.listen(PORT, HOST, () =>
-  console.log('Server listening on http://%s:%d...', HOST, PORT)
-)
+server.listen(PORT, () => console.log('Server listening on port %d...', PORT))
 
 const cleanuUp = async () => {
   // clean up allocated resources
+  const pool = db.Pool
   await pool.release()
 
   server.close(() => {
@@ -43,6 +40,7 @@ process.on('SIGINT', async () => {
   shutDown()
 })
 
+// nodemon shutdown hook
 if (process.env.NODE_ENV !== 'production') {
   process.once('SIGUSR2', async () => {
     await cleanuUp()
