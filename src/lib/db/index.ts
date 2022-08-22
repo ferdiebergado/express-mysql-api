@@ -1,4 +1,4 @@
 import { Entity } from './entity.interface'
-import * as db from './db'
+import db from './db'
 
 export { Entity, db }

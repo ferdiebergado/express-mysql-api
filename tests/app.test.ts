@@ -5,12 +5,11 @@ import { db } from '../src/lib/db'
 
 // app setup
 const api = request(app)
-const pool = db.Pool
 
 // test proper
 describe('App Test Suite', () => {
   afterAll(async () => {
-    await pool.release()
+    await db.close()
   })
 
   test('GET / returns the status is up', async () => {

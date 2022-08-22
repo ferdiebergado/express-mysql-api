@@ -30,14 +30,12 @@ describe('User Login', () => {
   const registerUrl = authUrl + '/register'
   const loginUrl = authUrl + '/login'
 
-  const pool = db.Pool
-
   let loginData: authDto.LoginDTO
   let email: string
   let password: string
 
   beforeAll(async () => {
-    await db.resetDb()
+    await db.resetTable('users')
   })
 
   beforeEach(async () => {
@@ -54,7 +52,7 @@ describe('User Login', () => {
   })
 
   afterAll(async () => {
-    await pool.release()
+    await db.close()
   })
 
   it('should return a token', async () => {

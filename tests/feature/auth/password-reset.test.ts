@@ -24,14 +24,12 @@ describe('Password Reset', () => {
     return { email, password }
   }
 
-  const pool = db.Pool
-
   beforeAll(async () => {
-    await db.resetDb()
+    await db.resetTable('users')
   })
 
   afterAll(async () => {
-    await pool.release()
+    await db.close()
   })
 
   it.todo('sends a password reset link')

@@ -31,14 +31,12 @@ describe('User Authorization', () => {
   const registerUrl = authUrl + '/register'
   const loginUrl = authUrl + '/login'
 
-  const pool = db.Pool
-
   beforeAll(async () => {
-    await db.resetDb()
+    await db.resetTable('users')
   })
 
   afterAll(async () => {
-    await pool.release()
+    await db.close()
   })
 
   const usersUrl = '/users'

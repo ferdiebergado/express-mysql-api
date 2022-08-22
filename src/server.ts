@@ -10,8 +10,7 @@ server.listen(PORT, () => console.log('Server listening on port %d...', PORT))
 
 const cleanuUp = async () => {
   // clean up allocated resources
-  const pool = db.Pool
-  await pool.release()
+  await db.close()
 
   server.close(() => {
     console.log('Server closed.')

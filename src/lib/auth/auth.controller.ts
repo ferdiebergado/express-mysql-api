@@ -17,7 +17,11 @@ const authController = {
     try {
       const { email, password, passwordConfirmation } = req.body
 
-      const id = await auth.register({ email, password, passwordConfirmation })
+      const id = await auth.register({
+        email,
+        password,
+        passwordConfirmation,
+      })
 
       const payload: ResponsePayload = {
         status: 'ok',
@@ -30,7 +34,6 @@ const authController = {
       next(error)
     }
   },
-
   login: async (
     req: Request<
       {

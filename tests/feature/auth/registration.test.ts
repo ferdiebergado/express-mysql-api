@@ -37,14 +37,12 @@ describe('User Registration', () => {
   // endpoints to test
   const registerUrl = authUrl + '/register'
 
-  const pool = db.Pool
-
   beforeAll(async () => {
-    await db.resetDb()
+    await db.resetTable('users')
   })
 
   afterAll(async () => {
-    await pool.release()
+    await db.close()
   })
 
   it('should return the user id', async () => {

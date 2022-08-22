@@ -1,116 +1,86 @@
-import mysql from 'mysql2'
-import fs from 'fs/promises'
-import path from 'path'
+import mysql, { Pool } from 'mysql2'
 import config from '../../config'
 
-const _pool = () => {
-  let pool: mysql.Pool | undefined
+class Database {
+  pool!: Pool
 
-  return {
-    get: () => {
-      if (pool) return pool
+  constructor() {
+    this.init()
+    this._attachListeners()
+  }
 
-      pool = mysql.createPool(config.db)
+  /**
+   * Initialize the database
+   */
+  init() {
+    const _pool = mysql.createPool(config.db)
 
+    _pool.getConnection((err, connection) => {
+      if (err) throw err
       console.log('Connected to the database')
+      connection.release()
+    })
 
-      pool.on('connection', (conn) => {
-        console.log('Connection %d created', conn.threadId)
+    this.pool = _pool
+  }
+
+  /**
+   * Get a promise-wrapped connection
+   * @returns Pool
+   */
+  getPromisePool() {
+    return this.pool.promise()
+  }
+
+  async query(sql: string) {
+    const [result] = await this.getPromisePool().query(sql)
+
+    return result
+  }
+
+  async execute(sql: string, params: any) {
+    const [result] = await this.getPromisePool().execute(sql, params)
+
+    return result
+  }
+
+  async resetTable(table: string) {
+    await this.getPromisePool().query('SET FOREIGN_KEY_CHECKS = 0')
+    await this.getPromisePool().query(`TRUNCATE TABLE ${table}`)
+    await this.getPromisePool().query('SET FOREIGN_KEY_CHECKS = 1')
+  }
+
+  close(): Promise<void> {
+    console.log('Closing database connection...')
+
+    return new Promise((resolve, reject) => {
+      this.pool.end((err) => {
+        if (err) return reject(err)
+
+        console.log('Database closed')
+
+        resolve()
       })
+    })
+  }
 
-      pool.on('acquire', function (connection) {
-        console.log('Connection %d acquired', connection.threadId)
-      })
+  private _attachListeners() {
+    this.pool.on('connection', (conn) => {
+      console.log('Connection %d created', conn.threadId)
+    })
 
-      pool.on('enqueue', function () {
-        console.log('Waiting for available connection slot...')
-      })
+    this.pool.on('acquire', function (connection) {
+      console.log('Connection %d acquired', connection.threadId)
+    })
 
-      pool.on('release', function (connection) {
-        console.log('Connection %d released', connection.threadId)
-      })
+    this.pool.on('enqueue', function () {
+      console.log('Waiting for available connection slot...')
+    })
 
-      return pool
-    },
-
-    release: (): Promise<void> => {
-      console.log('Closing database connection...')
-
-      if (!pool) return Promise.resolve()
-
-      return new Promise((resolve, reject) => {
-        pool?.end((err) => {
-          if (err) return reject(err)
-
-          pool = undefined
-
-          console.log('Database closed')
-
-          resolve()
-        })
-      })
-    },
+    this.pool.on('release', function (connection) {
+      console.log('Connection %d released', connection.threadId)
+    })
   }
 }
 
-export const Pool = _pool()
-
-export const pool = Pool.get()
-
-const promisePool = pool.promise()
-
-export const execute = async (
-  sql: string,
-  params: any | any[] | { [param: string]: any }
-) => {
-  const [result] = await promisePool.execute(sql, params)
-
-  return result
-}
-
-export const query = async (sql: string) => {
-  const [result] = await promisePool.query(sql)
-
-  return result
-}
-
-export const resetDb = async () => {
-  const conn = await promisePool.getConnection()
-
-  try {
-    await conn.beginTransaction()
-    await conn.query('SET FOREIGN_KEY_CHECKS = 0')
-
-    const schema = config.db.database
-    const [rows] = await conn.execute(
-      'SELECT table_name FROM information_schema.tables WHERE table_schema = :schema',
-      { schema }
-    )
-
-    const tables = rows as any[]
-
-    tables.forEach(async (table: Record<string, any>) => {
-      await conn.execute('DROP TABLE IF EXISTS `:table`', {
-        table: table.TABLE_NAME,
-      })
-    })
-
-    const sqlDir = path.join(__dirname, 'sql')
-    const files = await fs.readdir(sqlDir)
-
-    files.forEach(async (file) => {
-      const sqlFile = path.join(sqlDir, file)
-
-      const sql = await fs.readFile(sqlFile, { encoding: 'utf-8' })
-
-      await conn.query(sql)
-    })
-
-    await conn.query('SET FOREIGN_KEY_CHECKS = 1')
-    await conn.commit()
-  } catch (error) {
-    await conn.rollback()
-    console.error(error)
-    throw error
-  }
-}
+export default new Database()
