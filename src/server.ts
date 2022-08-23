@@ -4,15 +4,17 @@ import { db } from './lib/db'
 
 const PORT = app.get('port')
 
-const server = http.createServer(app)
+const httpServer = http.createServer(app)
 
-server.listen(PORT, () => console.log('Server listening on port %d...', PORT))
+httpServer.listen(PORT, () =>
+  console.log('Server listening on port %d...', PORT)
+)
 
 const cleanuUp = async () => {
   // clean up allocated resources
   await db.close()
 
-  server.close(() => {
+  httpServer.close(() => {
     console.log('Server closed.')
   })
 }
